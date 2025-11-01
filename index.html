@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation Command</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .os-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .command-container {
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .command {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: #333;
+            word-break: break-all;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+
+        .switch-btn {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .switch-btn:hover {
+            background: #d0d0d0;
+        }
+
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .note strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .command {
+                font-size: 12px;
+            }
+
+            button {
+                min-width: 100px;
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Installation Command</h1>
+        <p class="subtitle">Run this command in your terminal to install</p>
+
+        <div class="os-badge" id="osBadge">Detecting OS...</div>
+
+        <div class="command-container">
+            <div class="command" id="command"></div>
+            <div class="button-group">
+                <button class="copy-btn" id="copyBtn" onclick="copyCommand()">
+                    <span id="copyText">Copy Command</span>
+                </button>
+                <button class="switch-btn" id="switchBtn" onclick="switchOS()"></button>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>Note:</strong>
+            This command will download and execute a script. Always review scripts before running them in your terminal.
+        </div>
+    </div>
+
+    <script>
+        let currentOS = '';
+        const commands = {
+            unix: "curl https://carsongee.com/install/install/ | sh",
+            windows: "irm https://carsongee.com/install/winstall/ | iex"
+        };
+
+        function detectOS() {
+            const platform = navigator.platform.toLowerCase();
+            const userAgent = navigator.userAgent.toLowerCase();
+
+            if (platform.includes('win') || userAgent.includes('windows')) {
+                return 'windows';
+            } else {
+                return 'unix';
+            }
+        }
+
+        function updateDisplay(os) {
+            currentOS = os;
+            const commandElement = document.getElementById('command');
+            const osBadge = document.getElementById('osBadge');
+            const switchBtn = document.getElementById('switchBtn');
+
+            commandElement.textContent = commands[os];
+
+            if (os === 'windows') {
+                osBadge.textContent = '🪟 Windows Detected';
+                switchBtn.textContent = 'Switch to Unix/Linux/macOS';
+            } else {
+                osBadge.textContent = '🐧 Unix/Linux/macOS Detected';
+                switchBtn.textContent = 'Switch to Windows';
+            }
+        }
+
+        function copyCommand() {
+            const command = commands[currentOS];
+            const copyBtn = document.getElementById('copyBtn');
+            const copyText = document.getElementById('copyText');
+
+            navigator.clipboard.writeText(command).then(() => {
+                copyBtn.classList.add('copied');
+                copyText.textContent = '✓ Copied!';
+
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyText.textContent = 'Copy Command';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy. Please copy manually.');
+            });
+        }
+
+        function switchOS() {
+            const newOS = currentOS === 'windows' ? 'unix' : 'windows';
+            updateDisplay(newOS);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const detectedOS = detectOS();
+            updateDisplay(detectedOS);
+        });
+    </script>
+</body>
+</html>
